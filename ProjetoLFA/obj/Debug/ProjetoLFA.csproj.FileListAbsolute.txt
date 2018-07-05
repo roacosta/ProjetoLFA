@@ -1,0 +1,6 @@
+C:\Users\Rodrigo\source\repos\ProjetoLFA\ProjetoLFA\bin\Debug\ProjetoLFA.exe
+C:\Users\Rodrigo\source\repos\ProjetoLFA\ProjetoLFA\bin\Debug\ProjetoLFA.pdb
+C:\Users\Rodrigo\source\repos\ProjetoLFA\ProjetoLFA\obj\Debug\ProjetoLFA.csprojAssemblyReference.cache
+C:\Users\Rodrigo\source\repos\ProjetoLFA\ProjetoLFA\obj\Debug\ProjetoLFA.csproj.CoreCompileInputs.cache
+C:\Users\Rodrigo\source\repos\ProjetoLFA\ProjetoLFA\obj\Debug\ProjetoLFA.exe
+C:\Users\Rodrigo\source\repos\ProjetoLFA\ProjetoLFA\obj\Debug\ProjetoLFA.pdb
