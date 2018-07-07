@@ -52,6 +52,7 @@ namespace ProjetoLFA
                     }
 
                 }
+				
             }
             //====== Define os Estados 
             {
@@ -94,6 +95,7 @@ namespace ProjetoLFA
                         }
                     }
                 }
+                /// Definir Estado 
 
             }
             //====== Define o alfabeto
@@ -113,6 +115,9 @@ namespace ProjetoLFA
                                 switch (caractere)
                                 {
                                     case '|':
+                                        read = 1;
+                                        break;
+                                    case '=':
                                         read = 1;
                                         break;
                                     case '<':
@@ -172,6 +177,10 @@ namespace ProjetoLFA
                     String transicao = "";
                     foreach (char caractere in gramatica.linhaInteira)
                     {
+                        /* READ = 1: Lendo terminal
+                         * READ = 2: Lendo Não-terminal
+                         * READ = 3: Adicionar a produção à regra
+                         */
 
                         switch (caractere)
                         {
@@ -179,7 +188,8 @@ namespace ProjetoLFA
                                 read = 1;
                                 break;
                             case '|':
-                                read = 1;
+                                if(read == 1) read = 3;
+                                else read = 1;
                                 break;
                             case '<':
                                 if (read == 1)
@@ -216,15 +226,16 @@ namespace ProjetoLFA
                                             {
                                                 regra.transicoes.Insert(0, itemRegra);
                                             }
-
                                         }
                                     }
                                     read = 0;
                                     transicao = "";
+                                    simbolo = '\0';
                                 }
                                 break;                            
                         }
                     }
+                    /* SE USAR ENTRADA SEM PIPE NO FINAL, DESCOMENTAR
                     if (read == 3)
                     {
                         ItemRegra itemRegra = new ItemRegra();
@@ -248,7 +259,7 @@ namespace ProjetoLFA
                         }
                         read = 0;
                         transicao = "";
-                    }                    
+                    }*/                    
                 }
             }
 
