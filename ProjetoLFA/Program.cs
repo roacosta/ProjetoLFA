@@ -235,7 +235,7 @@ namespace ProjetoLFA
                                 break;                            
                         }
                     }
-                    /* SE USAR ENTRADA SEM PIPE NO FINAL, DESCOMENTAR
+                    // Tratar última produção quando ainda não tratada
                     if (read == 3)
                     {
                         ItemRegra itemRegra = new ItemRegra();
@@ -259,7 +259,7 @@ namespace ProjetoLFA
                         }
                         read = 0;
                         transicao = "";
-                    }*/                    
+                    }                  
                 }
             }
 
