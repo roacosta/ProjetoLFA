@@ -179,6 +179,7 @@ namespace ProjetoLFA
                 foreach (GramaticaRegular gramatica in gramaticasRegulares)
                 {
                     int read = 0;
+                    int comecarLeitura = 0;
                     Char simbolo = ' ';
                     String transicao = "";
                     foreach (char caractere in gramatica.linhaInteira)
@@ -192,13 +193,21 @@ namespace ProjetoLFA
                         {
                             case '=':
                                 read = 1;
+                                comecarLeitura = 1;
                                 break;
                             case '|':
-                                if(read == 1) read = 4;
-                                else read = 1;
+                                if(transicao.Length > 0 || !simbolo.Equals('\0'))
+                                {
+                                    read = 3;
+                                }                                  
+                                else
+                                {                                    
+                                    read = 1;
+                                }
+                                    
                                 break;
                             case '<':
-                                if (read == 1)
+                                if (comecarLeitura == 1)
                                     read = 2;
                                 break;
                             case '>':
@@ -214,7 +223,7 @@ namespace ProjetoLFA
                                 {
                                     transicao += caractere;
                                 }
-                                if (read == 3 || read == 4)
+                                if (read == 3)
                                 {
                                     ItemRegra itemRegra = new ItemRegra();
                                     itemRegra.simbolo = simbolo;
@@ -236,8 +245,7 @@ namespace ProjetoLFA
                                             }
                                         }
                                     }
-                                    if (read == 4) read = 1;
-                                    else read = 0;
+                                    read = 0;
                                     transicao = "";
                                     simbolo = '\0';
                                 }
