@@ -194,7 +194,7 @@ namespace ProjetoLFA
                                 read = 1;
                                 break;
                             case '|':
-                                if(read == 1) read = 3;
+                                if(read == 1) read = 4;
                                 else read = 1;
                                 break;
                             case '<':
@@ -214,7 +214,7 @@ namespace ProjetoLFA
                                 {
                                     transicao += caractere;
                                 }
-                                if (read == 3)
+                                if (read == 3 || read == 4)
                                 {
                                     ItemRegra itemRegra = new ItemRegra();
                                     itemRegra.simbolo = simbolo;
@@ -236,7 +236,8 @@ namespace ProjetoLFA
                                             }
                                         }
                                     }
-                                    read = 0;
+                                    if (read == 4) read = 1;
+                                    else read = 0;
                                     transicao = "";
                                     simbolo = '\0';
                                 }
