@@ -235,6 +235,7 @@ namespace ProjetoLFA
                                 break;                            
                         }
                     }
+                    ///VE SE FUNCIONA AQUI POWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
                     // Tratar última produção quando ainda não tratada
                     if (read == 3)
                     {
