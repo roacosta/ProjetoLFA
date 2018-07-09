@@ -17,6 +17,12 @@ namespace ProjetoLFA
         {
             public String nomeRegra;
             public List<ItemRegra> transicoes = new List<ItemRegra>();
+            public Boolean final;
+
+            public Regra()
+            {
+                this.final = false;
+            }
             
         }
 
@@ -216,6 +222,8 @@ namespace ProjetoLFA
 
                                     foreach (Regra regra in regras)
                                     {
+                                        if (transicao == "") regra.final = true;
+
                                         if (regra.nomeRegra.Equals(gramatica.nomeEstado))
                                         {
                                             try
@@ -235,7 +243,6 @@ namespace ProjetoLFA
                                 break;                            
                         }
                     }
-                    ///VE SE FUNCIONA AQUI POWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
                     // Tratar última produção quando ainda não tratada
                     if (read == 3)
                     {
@@ -279,8 +286,6 @@ namespace ProjetoLFA
                         {
                             if (regra.nomeRegra.Equals(estadoAtual))
                             {
-                                
-
                                 foreach (var novoNome in nomesParaNovasRegras)
                                 {
                                     temRegra = 0;
@@ -321,8 +326,15 @@ namespace ProjetoLFA
                     }
                 }
             }
+            //Identificar estados finais
             foreach (var regra in regras)
             {
+                if (regra.transicoes.Count == 0) regra.final = true;
+            }
+            //Imprimir regras
+            foreach (var regra in regras)
+            {
+                if (regra.final == true) Console.Write("*");
                 Console.WriteLine("Regra " + regra.nomeRegra);
                 foreach (var transicoes in regra.transicoes)
                 {
