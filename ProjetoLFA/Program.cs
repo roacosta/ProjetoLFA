@@ -22,8 +22,14 @@ namespace ProjetoLFA
             public Regra()
             {
                 this.final = false;
-            }
-            
+            }            
+        }
+
+        public class ItemRegraAdicionar
+        {
+            public String nomeRegra;
+            public Char simbolo;
+            public String regraTransicao;
         }
 
         public class GramaticaRegular
@@ -41,6 +47,7 @@ namespace ProjetoLFA
             List<Char> alfabeto = new List<Char>();
             List<String> nomesEstados = new List<String>();
             List<Regra> regras = new List<Regra>();
+            List<ItemRegraAdicionar> transicoesAdicionar = new List<ItemRegraAdicionar>();
 
             
 
@@ -166,7 +173,6 @@ namespace ProjetoLFA
                     Console.WriteLine(letra.ToString() + ' ');
                 }
             }
-
             //====== Define as Regras pelas gramáticas informadas no arquivo
             {
                 foreach(String estado in nomesEstados)
@@ -184,6 +190,7 @@ namespace ProjetoLFA
                     String transicao = "";
                     foreach (char caractere in gramatica.linhaInteira)
                     {
+                        
                         /* READ = 1: Lendo terminal
                          * READ = 2: Lendo Não-terminal
                          * READ = 3: Adicionar a produção à regra
@@ -245,7 +252,7 @@ namespace ProjetoLFA
                                             }
                                         }
                                     }
-                                    read = 0;
+                                    read = 1;
                                     transicao = "";
                                     simbolo = '\0';
                                 }
@@ -279,7 +286,6 @@ namespace ProjetoLFA
                     }                  
                 }
             }
-
             //====== Define as Regras pelos tokens
             {
                 var estadoAtual = "S";
@@ -308,8 +314,7 @@ namespace ProjetoLFA
                                     }
                                     if (temRegra == 0)
                                     {
-                                        
-                                        
+                                                  
                                         adicionarRegra = 1;
                                         novoNomeExterno = novoNome;
                                         estadoAtual = novoNome;
@@ -335,12 +340,77 @@ namespace ProjetoLFA
                     }
                 }
             }
-            //Identificar estados finais
+            //====== Identificar estados finais
+            {
+                foreach (var regra in regras)
+                {
+                    if (regra.transicoes.Count == 0) regra.final = true;
+                }
+            }
+            //====== Imprimir regras
+            {
+                ImprimirRegras(regras);
+            }
+            //====== Remover Epsilon Transições
+            {
+                
+                foreach (var regra in regras)
+                {
+                    foreach (var transicao in regra.transicoes)
+                    {
+                        if (transicao.simbolo.Equals('\0'))
+                        {
+                            var nomeRegraDestino = transicao.regraTransicao;
+                            foreach (var regraDestino in regras)
+                            {
+                                if (regraDestino.nomeRegra == nomeRegraDestino)
+                                {
+                                    foreach (var transicaoRegraDestino in regraDestino.transicoes)
+                                    {
+                                        ItemRegraAdicionar transicaoAdicionar = new ItemRegraAdicionar
+                                        {
+                                            nomeRegra = regra.nomeRegra,
+                                            regraTransicao = transicaoRegraDestino.regraTransicao,
+                                            simbolo = transicaoRegraDestino.simbolo
+                                        };
+                                        transicoesAdicionar.Add(transicaoAdicionar);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+                foreach (var transicao in transicoesAdicionar)
+                {
+                    ItemRegra novaTransicao = new ItemRegra
+                    {
+                        regraTransicao = transicao.regraTransicao,
+                        simbolo = transicao.simbolo
+                    };
+                    Regra regra = BuscarRegra(regras, transicao.nomeRegra);
+                    regra.transicoes.Add(novaTransicao);
+                }
+            }
+
+           // ImprimirRegras(regras);
+
+        }
+
+        public static Regra BuscarRegra(dynamic regras, String nomeRegra)
+        {
             foreach (var regra in regras)
             {
-                if (regra.transicoes.Count == 0) regra.final = true;
+                if (nomeRegra == regra.nomeRegra)
+                {
+                    return regra;
+                }
             }
-            //Imprimir regras
+            return null;
+        }
+
+        public static void ImprimirRegras(dynamic regras)
+        {
             foreach (var regra in regras)
             {
                 if (regra.final == true) Console.Write("*");
