@@ -407,7 +407,7 @@ namespace ProjetoLFA
                 }
             }
 
-           
+
             //====== Imprimir regras
             {
                 ImprimirRegras(regras);
@@ -471,7 +471,7 @@ namespace ProjetoLFA
             {
                 Console.WriteLine("Determinização: ");
 
-                
+
                 bool alterou = true;
 
 
@@ -490,7 +490,7 @@ namespace ProjetoLFA
                                     var achou = 0;
                                     foreach (var contador in contadorTransicoes)
                                     {
-                                        if (transicao.simbolo == contador.simbolo && regra.nomeRegra == contador.regraAssociada)
+                                        if (transicao.simbolo.Equals(contador.simbolo) && regra.nomeRegra == contador.regraAssociada)
                                         {
                                             achou = 1;
                                             contador.quantidade++;
@@ -528,7 +528,7 @@ namespace ProjetoLFA
                     {
                         if (contador.quantidade > 1)
                         {
-                            
+                            alterou = true;
                             String nomeNovaRegra = "";
                             foreach (String s in contador.regras)
                             {
@@ -538,7 +538,7 @@ namespace ProjetoLFA
                             {
                                 nomesEstados.Add(nomeNovaRegra);
 
-                                alterou = true;
+
                                 Regra novaRegra = new Regra();
                                 novaRegra.nomeRegra = nomeNovaRegra;
                                 foreach (String s in contador.regras)
@@ -552,56 +552,84 @@ namespace ProjetoLFA
 
                                             foreach (var transicao in regra.transicoes)
                                             {
-                                                novaRegra.transicoes.Add(transicao);    
+                                                if (!VerificaExistenciaTransicaoRegra(novaRegra, transicao))
+                                                {
+                                                    ItemRegra novaTransicao = new ItemRegra()
+                                                    {
+                                                        simbolo = transicao.simbolo,
+                                                        valida = transicao.valida,
+                                                        regraTransicao = transicao.regraTransicao
+                                                    };
+                                                    novaRegra.transicoes.Add(novaTransicao);
+                                                }
                                             }
                                         }
                                     }
                                 }
 
                                 regras.Add(novaRegra);
-                                foreach (var regra in regras)
-                                {
-                                    if (contador.regraAssociada == regra.nomeRegra)
-                                    {
-                                        ItemRegra novaTransicao = new ItemRegra();
-                                        novaTransicao.regraTransicao = nomeNovaRegra;
-                                        novaTransicao.simbolo = contador.simbolo;
-                                        regra.transicoes.Add(novaTransicao);
-
-                                        foreach (var transicao in regra.transicoes)
-                                        {
-                                            if (transicao.simbolo == contador.simbolo && transicao.regraTransicao != nomeNovaRegra)
-                                            {
-                                                transicao.valida = false;
-                                            }
-                                        }
-                                    }
-
-                                }
                             }
                             else
                             {
-                                foreach (var regra in regras)
-                                {
-                                    if (contador.regraAssociada == regra.nomeRegra)
-                                    {
-                                        ItemRegra novaTransicao = new ItemRegra();
-                                        novaTransicao.regraTransicao = nomeNovaRegra;
-                                        novaTransicao.simbolo = contador.simbolo;
-                                        regra.transicoes.Add(novaTransicao);
 
-                                        foreach (var transicao in regra.transicoes)
+                                foreach (var regraExistente in regras)
+                                {
+                                    if (regraExistente.nomeRegra == nomeNovaRegra && regraExistente.valida)
+                                    {
+                                        foreach (String s in contador.regras)
                                         {
-                                            if (transicao.simbolo == contador.simbolo && transicao.regraTransicao != nomeNovaRegra)
+                                            foreach (var regra in regras)
                                             {
-                                                transicao.valida = false;
+                                                if (regra.nomeRegra == s)
+                                                {
+                                                    if (regra.final)
+                                                        regraExistente.final = true;
+
+                                                    foreach (var transicao in regra.transicoes)
+                                                    {
+
+                                                        if (!VerificaExistenciaTransicaoRegra(regraExistente, transicao))
+                                                        {
+                                                            ItemRegra novaTransicao = new ItemRegra()
+                                                            {
+                                                                simbolo = transicao.simbolo,
+                                                                valida = transicao.valida,
+                                                                regraTransicao = transicao.regraTransicao
+
+                                                            };
+                                                            regraExistente.transicoes.Add(novaTransicao);
+                                                        }
+                                                    }
+                                                    break;
+                                                }
                                             }
                                         }
+                                        break;
                                     }
+                                }
+                            }
 
+                            foreach (var regra in regras)
+                            {
+                                if (contador.regraAssociada == regra.nomeRegra)
+                                {
+                                    ItemRegra novaTransicao = new ItemRegra();
+                                    novaTransicao.regraTransicao = nomeNovaRegra;
+                                    novaTransicao.simbolo = contador.simbolo;
+                                    if(!VerificaExistenciaTransicaoRegra(regra,novaTransicao))
+                                        regra.transicoes.Add(novaTransicao);
+
+                                    foreach (var transicao in regra.transicoes)
+                                    {
+                                        if (transicao.simbolo == contador.simbolo && transicao.regraTransicao != nomeNovaRegra)
+                                        {
+                                            transicao.valida = false;
+                                        }
+                                    }
                                 }
                             }
                         }
+
                     }
                     foreach (var regraChamada in regras)
                     {
@@ -626,12 +654,12 @@ namespace ProjetoLFA
                     }
                 }
 
-                
+
 
                 ImprimirRegras(regras);
                 ImprimirCSV(regras, alfabeto, nomesEstados, "AutomatoFinitoDeterminizado.csv");
             }
-            
+
 
         }
 
@@ -651,7 +679,7 @@ namespace ProjetoLFA
         {
             foreach (var transicaoRegra in regra.transicoes)
             {
-                if(transicao.regraTransicao == transicaoRegra.regraTransicao && transicao.simbolo.Equals(transicaoRegra.simbolo))
+                if (transicao.regraTransicao == transicaoRegra.regraTransicao && transicao.simbolo.Equals(transicaoRegra.simbolo))
                 {
                     return true;
                 }
@@ -678,9 +706,9 @@ namespace ProjetoLFA
                     Console.WriteLine("");
                 }
             }
-        } 
-        
-        public static void ImprimirCSV(dynamic regras,dynamic alfabeto, dynamic nomesEstados, String nomeArquivo)
+        }
+
+        public static void ImprimirCSV(dynamic regras, dynamic alfabeto, dynamic nomesEstados, String nomeArquivo)
         {
             String text = ";";
             foreach (char letra in alfabeto)
