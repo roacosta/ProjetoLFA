@@ -695,6 +695,54 @@ namespace ProjetoLFA
                 ImprimirRegras(regras);
                 ImprimirCSV(regras, alfabeto, nomesEstados, "AutomatoFinitoMinimizado.csv");
             }
+
+            //====== Estado de erro
+            {
+                var deveCriarEstadoErro = 0;
+                foreach (var letra in alfabeto)
+                {
+                    foreach (var regra in regras)
+                    {
+                        var achou = 0;
+                        foreach (var transicao in regra.transicoes)
+                        {
+                            if (transicao.simbolo.Equals(letra) && transicao.valida)
+                            {
+                                achou = 1;
+                                break;
+                            }
+                        }
+                        if (achou == 0)
+                        {
+                            ItemRegra transacaoErro = new ItemRegra()
+                            {
+                                simbolo = letra,
+                                valida = true,
+                                regraTransicao = "!"
+                            };
+                            regra.transicoes.Add(transacaoErro);
+                            deveCriarEstadoErro = 1;
+                        }
+
+                    }
+                }
+                if (deveCriarEstadoErro == 1) {
+                    Regra regra = new Regra()
+                    {
+                        nomeRegra = "!",
+                        final = true,
+                        valida = true,
+                        transicoes = new List<ItemRegra>()
+                    };
+                    regras.Add(regra);
+                }
+
+                ImprimirRegras(regras);
+                ImprimirCSV(regras, alfabeto, nomesEstados, "AutomatoFinitoEstadoErro.csv");
+            }
+
+
+            
         }
 
         public static Regra BuscarRegra(dynamic regras, String nomeRegra)
