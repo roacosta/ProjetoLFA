@@ -610,7 +610,7 @@ namespace ProjetoLFA
                                     ItemRegra novaTransicao = new ItemRegra();
                                     novaTransicao.regraTransicao = nomeNovaRegra;
                                     novaTransicao.simbolo = contador.simbolo;
-                                    if(!VerificaExistenciaTransicaoRegra(regra,novaTransicao))
+                                    if (!VerificaExistenciaTransicaoRegra(regra, novaTransicao))
                                         regra.transicoes.Add(novaTransicao);
 
                                     foreach (var transicao in regra.transicoes)
@@ -625,12 +625,24 @@ namespace ProjetoLFA
                         }
 
                     }
-                    foreach (var regraChamada in regras)
+                }
+
+
+
+                ImprimirRegras(regras);
+                ImprimirCSV(regras, alfabeto, nomesEstados, "AutomatoFinitoDeterminizado.csv");
+            }
+
+            //====== Remover estados inalcansáveis
+            {
+                foreach (var regraChamada in regras)
+                {
+                    int chamada = 0;
+                    foreach (var outraRegra in regras)
                     {
-                        int chamada = 0;
-                        foreach (var outraRegra in regras)
+                        if (regraChamada.nomeRegra != outraRegra.nomeRegra)
                         {
-                            if (regraChamada.nomeRegra != outraRegra.nomeRegra)
+                            if (outraRegra.valida)
                             {
                                 foreach (var transicao in outraRegra.transicoes)
                                 {
@@ -641,21 +653,17 @@ namespace ProjetoLFA
                                 }
                             }
                         }
-                        if (chamada == 0 && regraChamada.nomeRegra != estadoInicial)
-                        {
-                            regraChamada.valida = false;
-                        }
+                    }
+                    if (chamada == 0 && regraChamada.nomeRegra != estadoInicial)
+                    {
+                        regraChamada.valida = false;
                     }
                 }
-
-
-
-                ImprimirRegras(regras);
-                ImprimirCSV(regras, alfabeto, nomesEstados, "AutomatoFinitoDeterminizado.csv");
             }
+
             //====== Remover Estados Mortos
             {
-                foreach(var estado in nomesEstados)
+                foreach (var estado in nomesEstados)
                 {
                     foreach(var regra in regras)
                     {
