@@ -375,11 +375,17 @@ namespace ProjetoLFA
             }
             //====== Identificar estados finais e epsilon transições
             {
+                ItemRegra itemRegra = null;
                 foreach (var regra in regras)
                 {
                     if (regra.transicoes.Count == 0)
                     {
                         regra.final = true;
+
+                        itemRegra = new ItemRegra();
+                        itemRegra.simbolo = '&';
+                        itemRegra.regraTransicao = "X";
+                        regra.transicoes.Add(itemRegra);
                     }
                     foreach(var transicao in regra.transicoes)
                     {
@@ -396,6 +402,7 @@ namespace ProjetoLFA
                             }
                             transicao.simbolo = '&';
                         }
+                        if (transicao.simbolo.Equals('&')) regra.final = true;
                     }
                 }
             }
