@@ -34,6 +34,7 @@ namespace ProjetoLFA
 
         public class ItemRegraAdicionar
         {
+            public Boolean final;
             public String nomeRegra;
             public Char simbolo;
             public String regraTransicao;
@@ -180,6 +181,7 @@ namespace ProjetoLFA
                         };
                     }
                 }
+
             }
             //====== Debug Estados e Alfabeto
             {
@@ -260,10 +262,14 @@ namespace ProjetoLFA
 
                                     foreach (Regra regra in regras)
                                     {
-                                        if (transicao == "") regra.final = true;
-
+                                        
                                         if (regra.nomeRegra.Equals(gramatica.nomeEstado))
                                         {
+                                            if (transicao == "")
+                                            {
+                                                regra.final = true;
+                                            }
+
                                             try
                                             {
                                                 regra.transicoes.Add(itemRegra);
@@ -356,31 +362,49 @@ namespace ProjetoLFA
                         {
                             if (!nomesEstados.Contains(novoNomeExterno))
                                 nomesEstados.Add(novoNomeExterno);
-                            Regra novaRegra = new Regra();
-                            novaRegra.transicoes = new List<ItemRegra>();
-                            novaRegra.nomeRegra = novoNomeExterno;
+
+                            Regra novaRegra = new Regra
+                            {
+                                transicoes = new List<ItemRegra>(),
+                                nomeRegra = novoNomeExterno
+                            };
                             regras.Add(novaRegra);
                         }
                     }
                 }
             }
-            //====== Identificar estados finais
+            //====== Identificar estados finais e epsilon transições
             {
                 foreach (var regra in regras)
                 {
-                    if (regra.transicoes.Count == 0) regra.final = true;
+                    if (regra.transicoes.Count == 0)
+                    {
+                        regra.final = true;
+                    }
                     foreach(var transicao in regra.transicoes)
                     {
                         if (transicao.regraTransicao.Length == 0)
                         {
                             transicao.regraTransicao = "X";
+                            
+                        }
+                        if (transicao.simbolo.Equals('\0'))
+                        {
+                            if (!alfabeto.Contains('&'))
+                            {
+                                alfabeto.Add('&');
+                            }
+                            transicao.simbolo = '&';
                         }
                     }
                 }
             }
+
+           
             //====== Imprimir regras
             {
                 ImprimirRegras(regras);
+                ImprimirCSV(regras, alfabeto, nomesEstados, "AutomatoFinitoOriginal.csv");
             }
             //====== Remover Epsilon Transições
             {
@@ -389,7 +413,7 @@ namespace ProjetoLFA
                 {
                     foreach (var transicao in regra.transicoes)
                     {
-                        if (transicao.simbolo.Equals('\0'))
+                        if (transicao.simbolo.Equals('\0') || transicao.simbolo.Equals('&'))
                         {
                             var nomeRegraDestino = transicao.regraTransicao;
                             foreach (var regraDestino in regras)
@@ -400,6 +424,7 @@ namespace ProjetoLFA
                                     {
                                         ItemRegraAdicionar transicaoAdicionar = new ItemRegraAdicionar
                                         {
+                                            final = regraDestino.final,
                                             nomeRegra = regra.nomeRegra,
                                             regraTransicao = transicaoRegraDestino.regraTransicao,
                                             simbolo = transicaoRegraDestino.simbolo
@@ -422,15 +447,19 @@ namespace ProjetoLFA
 
                     Regra regra = BuscarRegra(regras, transicao.nomeRegra);
                     if (!VerificaExistenciaTransicaoRegra(regra, novaTransicao))
+                    {
                         regra.transicoes.Add(novaTransicao);
+                        if (transicao.final)
+                            regra.final = true;
+                    }
                 }
 
 
             }
 
             ImprimirRegras(regras);
+            ImprimirCSV(regras, alfabeto, nomesEstados, "AutomatoFinitoSemEspilonTransicoes.csv");
 
-        
             //====== Determinização
             {
                 Console.WriteLine("Determinização: ");
@@ -511,15 +540,40 @@ namespace ProjetoLFA
                                     {
                                         if (regra.nomeRegra == s)
                                         {
+                                            if (regra.final)
+                                                novaRegra.final = true;
+
                                             foreach (var transicao in regra.transicoes)
                                             {
-                                                novaRegra.transicoes.Add(transicao);
+                                                novaRegra.transicoes.Add(transicao);    
                                             }
                                         }
                                     }
                                 }
 
                                 regras.Add(novaRegra);
+                                foreach (var regra in regras)
+                                {
+                                    if (contador.regraAssociada == regra.nomeRegra)
+                                    {
+                                        ItemRegra novaTransicao = new ItemRegra();
+                                        novaTransicao.regraTransicao = nomeNovaRegra;
+                                        novaTransicao.simbolo = contador.simbolo;
+                                        regra.transicoes.Add(novaTransicao);
+
+                                        foreach (var transicao in regra.transicoes)
+                                        {
+                                            if (transicao.simbolo == contador.simbolo && transicao.regraTransicao != nomeNovaRegra)
+                                            {
+                                                transicao.valida = false;
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                            else
+                            {
                                 foreach (var regra in regras)
                                 {
                                     if (contador.regraAssociada == regra.nomeRegra)
@@ -568,42 +622,9 @@ namespace ProjetoLFA
                 
 
                 ImprimirRegras(regras);
+                ImprimirCSV(regras, alfabeto, nomesEstados, "AutomatoFinitoDeterminizado.csv");
             }
-            String text = ";";
-            foreach(char letra in alfabeto)
-            {
-                text += letra.ToString() + ';';
-            }
-
-            text += "\r\n";
-
-            foreach(String estado in nomesEstados)
-            {
-                
-                foreach(var regra in regras)
-                {
-                    if (regra.valida && regra.nomeRegra == estado)
-                    {
-                        text += estado + ';';
-                        foreach (char letra in alfabeto)
-                        {
-                            foreach (var transicao in regra.transicoes)
-                            {
-                                if (transicao.valida) {
-                                    if (transicao.simbolo == letra)
-                                    {
-                                        text += transicao.regraTransicao;
-                                    }
-                                }
-                            }
-                            text += ";";
-
-                        }
-                        text += "\r\n";
-                    }
-                }
-            }
-            System.IO.File.WriteAllText(@"Saida.csv", text);
+            
 
         }
 
@@ -650,7 +671,50 @@ namespace ProjetoLFA
                     Console.WriteLine("");
                 }
             }
-        }
+        } 
         
+        public static void ImprimirCSV(dynamic regras,dynamic alfabeto, dynamic nomesEstados, String nomeArquivo)
+        {
+            String text = ";";
+            foreach (char letra in alfabeto)
+            {
+                text += letra.ToString() + ';';
+            }
+
+            text += "\r\n";
+
+            foreach (String estado in nomesEstados)
+            {
+
+                foreach (var regra in regras)
+                {
+                    if (regra.valida && regra.nomeRegra == estado)
+                    {
+                        if (regra.final)
+                        {
+                            text += '*';
+                        }
+                        text += estado + ';';
+                        foreach (char letra in alfabeto)
+                        {
+                            foreach (var transicao in regra.transicoes)
+                            {
+                                if (transicao.valida)
+                                {
+                                    if (transicao.simbolo == letra)
+                                    {
+                                        text += transicao.regraTransicao + ',';
+                                    }
+                                }
+                            }
+                            text += ";";
+
+                        }
+                        text += "\r\n";
+                    }
+                }
+            }
+            System.IO.File.WriteAllText(nomeArquivo, text);
+        }
     }
 }
