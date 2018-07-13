@@ -701,14 +701,14 @@ namespace ProjetoLFA
                 var deveCriarEstadoErro = 0;
                 foreach (var letra in alfabeto)
                 {
-                    if (letra == '&') continue;
+                    
 
                     foreach (var regra in regras)
                     {
                         var achou = 0;
                         foreach (var transicao in regra.transicoes)
                         {
-                            if (transicao.simbolo.Equals(letra) && transicao.valida)
+                            if ((transicao.simbolo.Equals(letra) && transicao.valida) || (letra.Equals('&') && regra.final))
                             {
                                 achou = 1;
                                 break;
@@ -736,8 +736,21 @@ namespace ProjetoLFA
                         valida = true,
                         transicoes = new List<ItemRegra>()
                     };
+
+                    foreach (var letra in alfabeto)
+                    {
+                        ItemRegra transicaoErro = new ItemRegra()
+                        {
+                            regraTransicao = "!",
+                            simbolo = letra,
+                            valida = true
+                        };
+                        regra.transicoes.Add(transicaoErro);
+                    }
                     regras.Add(regra);
+                    nomesEstados.Add("!");
                 }
+
 
                 ImprimirRegras(regras);
                 ImprimirCSV(regras, alfabeto, nomesEstados, "AutomatoFinitoEstadoErro.csv");
