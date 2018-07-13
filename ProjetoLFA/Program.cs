@@ -701,6 +701,8 @@ namespace ProjetoLFA
                 var deveCriarEstadoErro = 0;
                 foreach (var letra in alfabeto)
                 {
+                    if (letra == '&') continue;
+
                     foreach (var regra in regras)
                     {
                         var achou = 0;
