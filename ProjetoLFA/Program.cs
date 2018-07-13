@@ -406,8 +406,6 @@ namespace ProjetoLFA
                     }
                 }
             }
-
-
             //====== Imprimir regras
             {
                 ImprimirRegras(regras);
@@ -460,13 +458,9 @@ namespace ProjetoLFA
                             regra.final = true;
                     }
                 }
-
-
+                ImprimirRegras(regras);
+                ImprimirCSV(regras, alfabeto, nomesEstados, "AutomatoFinitoSemEspilonTransicoes.csv");
             }
-
-            ImprimirRegras(regras);
-            ImprimirCSV(regras, alfabeto, nomesEstados, "AutomatoFinitoSemEspilonTransicoes.csv");
-
             //====== Determinização
             {
                 Console.WriteLine("Determinização: ");
@@ -659,8 +653,40 @@ namespace ProjetoLFA
                 ImprimirRegras(regras);
                 ImprimirCSV(regras, alfabeto, nomesEstados, "AutomatoFinitoDeterminizado.csv");
             }
+            //====== Remover Estados Mortos
+            {
+                foreach(var estado in nomesEstados)
+                {
+                    foreach(var regra in regras)
+                    {
+                        if (regra.valida)
+                        {
+                            if (regra.nomeRegra == estado)
+                            {
+                                if (regra.final)
+                                    continue;
 
-
+                                regra.valida = PercorreRegra(estado,regra, regras);
+                            }
+                            if (!regra.valida)
+                            {
+                                foreach(var outrasRegras in regras)
+                                {
+                                    foreach(var transicao in outrasRegras.transicoes)
+                                    {
+                                        if(transicao.regraTransicao == regra.nomeRegra)
+                                        {
+                                            transicao.valida = false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                ImprimirRegras(regras);
+                ImprimirCSV(regras, alfabeto, nomesEstados, "AutomatoFinitoMinimizado.csv");
+            }
         }
 
         public static Regra BuscarRegra(dynamic regras, String nomeRegra)
@@ -751,5 +777,31 @@ namespace ProjetoLFA
             }
             System.IO.File.WriteAllText(nomeArquivo, text);
         }
+
+        public static Boolean PercorreRegra(String estadoInicial, Regra regra, List<Regra> regras)
+        {
+            foreach(var transicao in regra.transicoes)
+            {
+                foreach(var regraDentro in regras)
+                {
+
+                    if(transicao.regraTransicao == regraDentro.nomeRegra)
+                    {
+                        if (!regraDentro.final) {
+                            if(regraDentro.nomeRegra != estadoInicial)
+                            {
+                                return PercorreRegra(estadoInicial, regraDentro, regras);
+                            }                            
+                        }
+                        else
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
     }
 }
