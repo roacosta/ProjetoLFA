@@ -373,7 +373,7 @@ namespace ProjetoLFA
                     {
                         if (transicao.regraTransicao.Length == 0)
                         {
-                            transicao.regraTransicao = "§";
+                            transicao.regraTransicao = "X";
                         }
                     }
                 }
