@@ -602,7 +602,7 @@ namespace ProjetoLFA
                                     }
                                 }
                             }
-
+                            //==== Adiciona o novo estado nas transicoes e invalida as transições que foram agrupadas.
                             foreach (var regra in regras)
                             {
                                 if (contador.regraAssociada == regra.nomeRegra)
@@ -633,7 +633,7 @@ namespace ProjetoLFA
                 ImprimirCSV(regras, alfabeto, nomesEstados, "AutomatoFinitoDeterminizado.csv");
             }
 
-            //====== Remover estados inalcansáveis
+            //====== Remover estados inalcançáveis
             {
                 foreach (var regraChamada in regras)
                 {
